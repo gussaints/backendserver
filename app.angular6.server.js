@@ -16,9 +16,11 @@ mongoose.connect( "mongodb://localhost:27017/hospital", { useNewUrlParser: true 
 // importar rutas
 var appRoutes = require( './routes/app.route' );
 var usuarioRoutes = require( './routes/usuario.route' );
+var loginRoutes = require( './routes/login.route' );
 // Rutas
 app.use( '/', appRoutes );
 app.use( '/usuario', usuarioRoutes );
+app.use( '/login', loginRoutes );
 // Escuchar peticiones
 var port = 3013;
 app.listen( port, ( ) => {

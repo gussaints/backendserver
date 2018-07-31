@@ -2,7 +2,9 @@ var express = require('express');
 var router = express.Router();
 var bcrypt = require( 'bcryptjs' );
 var Usuario = require('../models/usuario.model');
-
+var jwt = require( 'jsonwebtoken' );
+var SEED = require('../config/config').SEED;
+var mdAuthentication = require( '../middlewares/authentication.middleware' );
 // ==================================================
 // Obtener todos los usuarios
 // ==================================================
@@ -32,41 +34,11 @@ router.get('/', (req, res, next) => {
         });
 });
 
-// ==================================================
-// Crear un nuevo usuario
-// ==================================================
-router.post( '/', ( req, res, next ) => {
-    console.log();
-    var body = req.body;
-
-    var usuario = new Usuario({
-        nombre: body.nombre,
-        email: body.email,
-        password: bcrypt.hashSync( body.password, 10 ),
-        img: body.img,
-        role: body.role
-    });
-
-    usuario.save( ( errU, usuarioGuardado ) => {
-        if ( errU ) {
-            return res.status(400).json({
-                ok: false,
-                mensaje: 'Error al crear usuario',
-                errors: errU
-            });
-        } else {
-            return res.status(201).json({
-                ok: true,
-                usuario: usuarioGuardado
-            });
-        }
-    });
-});
 
 // ==================================================
 // Actualizar usuario
 // ==================================================
-router.put( '/:id', ( req, res, next ) => {
+router.put( '/:id', mdAuthentication.verificaToken, ( req, res, next ) => {
     console.log();
     var id = req.params.id;
     var body = req.body;
@@ -105,10 +77,44 @@ router.put( '/:id', ( req, res, next ) => {
         }
     })
 });
+
+// ==================================================
+// Crear un nuevo usuario
+// ==================================================
+router.post( '/', mdAuthentication.verificaToken, ( req, res, next ) => {
+    console.log();
+    var body = req.body;
+
+    var usuario = new Usuario({
+        nombre: body.nombre,
+        email: body.email,
+        password: bcrypt.hashSync( body.password, 10 ),
+        img: body.img,
+        role: body.role
+    });
+
+    usuario.save( ( errU, usuarioGuardado ) => {
+        if ( errU ) {
+            return res.status(400).json({
+                ok: false,
+                mensaje: 'Error al crear usuario',
+                errors: errU
+            });
+        } else {
+            return res.status(201).json({
+                ok: true,
+                usuario: usuarioGuardado,
+                usuarioToken: req.usuario
+            });
+        }
+    });
+});
+
+
 // ==================================================
 // Borrar un usuario por el id
 // ==================================================
-router.delete( '/:id', ( req, res, next ) => {
+router.delete( '/:id', mdAuthentication.verificaToken, ( req, res, next ) => {
     console.log();
     var id = req.params.id;
 
