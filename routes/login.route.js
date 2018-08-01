@@ -28,7 +28,7 @@ router.post( '/', ( req, res, next ) => {
         } else {
             // Crear un token !
             usuario.password = ':-)';
-            var token = jwt.sign({ usuario: usuario }, SEED, { expiresIn: 60 }); // 4 horas == 14400
+            var token = jwt.sign({ usuario: usuario }, SEED, { expiresIn: 14400 }); // 4 horas == 14400
 
             return res.status(200).json({
                 ok: true,

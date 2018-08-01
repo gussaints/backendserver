@@ -10,24 +10,31 @@ var mdAuthentication = require( '../middlewares/authentication.middleware' );
 // ==================================================
 router.get('/', (req, res, next) => {
     console.log('usuarios route');
-    Usuario.find({}, 'nombre email img role')
+    var desde = Number( req.query.desde || 0 );
+    Usuario
+        .find({}, 'nombre email img role')
+        .skip( desde )
+        .limit(5)
         .exec((err0, usuarios) => {
             if ( err0 ) {
                 return res.status(500).json({
                     ok: false,
-                    mensaje: 'Error cargando usuarios !',
+                    message: 'Error cargando usuarios !',
                     errors: err0
                 });
             } else if ( usuarios.length > 0 ) {
-                return res.status(200).json({
-                    ok: true,
-                    mensaje: 'Get de usuarios !',
-                    usuarios: usuarios
+                Usuario.count({}, ( err, conteo ) =>{
+                    return res.status(200).json({
+                        ok: true,
+                        total: conteo,
+                        message: 'Get de usuarios !',
+                        usuarios: usuarios
+                    });
                 });
             } else {
                 return res.status(404).json({
                     ok: false,
-                    mensaje: 'Does not exist users !',
+                    message: 'Does not exist users !',
                     usuarios: usuarios
                 });
             }
@@ -46,13 +53,13 @@ router.put( '/:id', mdAuthentication.verificaToken, ( req, res, next ) => {
         if ( errUpd ) {
             return res.status(500).json({
                 ok: false,
-                mensaje: 'Error al buscar usuario',
+                message: 'Error al buscar usuario',
                 errors: errUpd
             });
         } else if( !usuario ) {
             return res.status(400).json({
                 ok: false,
-                mensaje: `El usuario con el id ${id} no existe`,
+                message: `El usuario con el id ${id} no existe`,
                 errors: { message: 'No existe un usuario con ese Id' }
             });
         } else {
@@ -63,14 +70,15 @@ router.put( '/:id', mdAuthentication.verificaToken, ( req, res, next ) => {
                 if ( errSave ) {
                     return res.status(400).json({
                         ok: false,
-                        mensaje: 'Error al actualizar usuario',
+                        message: 'Error al actualizar usuario',
                         errors: errSave
                     });
                 } else {
                     usuarioGuardado.password = ':-)';
                     return res.status(200).json({
                         ok: true,
-                        usuario: usuarioGuardado
+                        usuario: usuarioGuardado,
+                        usuarioToken: req.usuario
                     });
                 }
             });
@@ -97,7 +105,7 @@ router.post( '/', mdAuthentication.verificaToken, ( req, res, next ) => {
         if ( errU ) {
             return res.status(400).json({
                 ok: false,
-                mensaje: 'Error al crear usuario',
+                message: 'Error al crear usuario',
                 errors: errU
             });
         } else {
@@ -122,19 +130,20 @@ router.delete( '/:id', mdAuthentication.verificaToken, ( req, res, next ) => {
         if ( errDel ) {
             return res.status(500).json({
                 ok: false,
-                mensaje: 'Error al borrar usuario',
+                message: 'Error al borrar usuario',
                 errors: errDel
             });
         } else if ( !usuarioBorrado ) {
             return res.status(400).json({
                 ok: false,
-                mensaje: 'No existe un usuario con ese Id',
-                errors: { message: 'No existe un usuario con ese Id' }
+                message: `No existe un hospital con el id ${id}`,
+                errors: { message: `No existe un hospital con el id ${id}` }
             });
         } else {
             return res.status(200).json({
                 ok: true,
-                usuario: usuarioBorrado
+                usuario: usuarioBorrado,
+                usuarioToken: req.usuario
             });
         }
     });
