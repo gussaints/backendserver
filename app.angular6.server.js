@@ -20,6 +20,11 @@ var hospitalRoutes = require( './routes/hospital.route' );
 var medicoRoutes = require( './routes/medico.route' );
 var busquedaRoutes = require( './routes/busqueda.route' );
 var uploadRoutes = require( './routes/upload.route' );
+var imagenesRoutes = require( './routes/imagenes.route' );
+// Server index config
+// var serveIndex = require( 'serve-index' );
+// app.use( express.static( __dirname + '/' ) );
+// app.use( '/uploads', serveIndex( __dirname + '/uploads' ) );
 // Rutas
 app.use( '/', appRoutes );
 app.use( '/usuario', usuarioRoutes );
@@ -28,6 +33,7 @@ app.use( '/hospital', hospitalRoutes );
 app.use( '/medico', medicoRoutes );
 app.use( '/busqueda', busquedaRoutes );
 app.use( '/upload', uploadRoutes );
+app.use( '/img', imagenesRoutes );
 // Escuchar peticiones
 var port = 3013;
 app.listen( port, ( ) => {
