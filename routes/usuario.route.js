@@ -1,29 +1,29 @@
 var express = require('express');
 var router = express.Router();
-var bcrypt = require( 'bcryptjs' );
+var bcrypt = require('bcryptjs');
 var Usuario = require('../models/usuario.model');
-var jwt = require( 'jsonwebtoken' );
+var jwt = require('jsonwebtoken');
 var SEED = require('../config/config').SEED;
-var mdAuthentication = require( '../middlewares/authentication.middleware' );
+var mdAuthentication = require('../middlewares/authentication.middleware');
 // ==================================================
 // Obtener todos los usuarios
 // ==================================================
 router.get('/', (req, res, next) => {
     console.log('usuarios route');
-    var desde = Number( req.query.desde || 0 );
+    var desde = Number(req.query.desde || 0);
     Usuario
         .find({}, 'nombre email img role')
-        .skip( desde )
+        .skip(desde)
         .limit(5)
         .exec((err0, usuarios) => {
-            if ( err0 ) {
+            if (err0) {
                 return res.status(500).json({
                     ok: false,
                     message: 'Error cargando usuarios !',
                     errors: err0
                 });
-            } else if ( usuarios.length > 0 ) {
-                Usuario.count({}, ( err, conteo ) =>{
+            } else if (usuarios.length > 0) {
+                Usuario.count({}, (err, conteo) => {
                     return res.status(200).json({
                         ok: true,
                         total: conteo,
@@ -45,18 +45,18 @@ router.get('/', (req, res, next) => {
 // ==================================================
 // Actualizar usuario
 // ==================================================
-router.put( '/:id', mdAuthentication.verificaToken, ( req, res, next ) => {
+router.put('/:id', mdAuthentication.verificaToken, (req, res, next) => {
     console.log();
     var id = req.params.id;
     var body = req.body;
-    Usuario.findById( id, ( errUpd, usuario ) => {
-        if ( errUpd ) {
+    Usuario.findById(id, (errUpd, usuario) => {
+        if (errUpd) {
             return res.status(500).json({
                 ok: false,
                 message: 'Error al buscar usuario',
                 errors: errUpd
             });
-        } else if( !usuario ) {
+        } else if (!usuario) {
             return res.status(400).json({
                 ok: false,
                 message: `El usuario con el id ${id} no existe`,
@@ -66,8 +66,8 @@ router.put( '/:id', mdAuthentication.verificaToken, ( req, res, next ) => {
             usuario.nombre = body.nombre;
             usuario.email = body.email;
             usuario.role = body.role;
-            usuario.save( ( errSave, usuarioGuardado ) => {
-                if ( errSave ) {
+            usuario.save((errSave, usuarioGuardado) => {
+                if (errSave) {
                     return res.status(400).json({
                         ok: false,
                         message: 'Error al actualizar usuario',
@@ -89,20 +89,20 @@ router.put( '/:id', mdAuthentication.verificaToken, ( req, res, next ) => {
 // ==================================================
 // Crear un nuevo usuario
 // ==================================================
-router.post( '/', mdAuthentication.verificaToken, ( req, res, next ) => {
+router.post('/', mdAuthentication.verificaToken, (req, res, next) => {
     console.log();
     var body = req.body;
 
     var usuario = new Usuario({
         nombre: body.nombre,
         email: body.email,
-        password: bcrypt.hashSync( body.password, 10 ),
+        password: bcrypt.hashSync(body.password, 10),
         img: body.img,
         role: body.role
     });
 
-    usuario.save( ( errU, usuarioGuardado ) => {
-        if ( errU ) {
+    usuario.save((errU, usuarioGuardado) => {
+        if (errU) {
             return res.status(400).json({
                 ok: false,
                 message: 'Error al crear usuario',
@@ -122,18 +122,18 @@ router.post( '/', mdAuthentication.verificaToken, ( req, res, next ) => {
 // ==================================================
 // Borrar un usuario por el id
 // ==================================================
-router.delete( '/:id', mdAuthentication.verificaToken, ( req, res, next ) => {
+router.delete('/:id', mdAuthentication.verificaToken, (req, res, next) => {
     console.log();
     var id = req.params.id;
 
-    Usuario.findByIdAndRemove( id, ( errDel, usuarioBorrado ) => {
-        if ( errDel ) {
+    Usuario.findByIdAndRemove(id, (errDel, usuarioBorrado) => {
+        if (errDel) {
             return res.status(500).json({
                 ok: false,
                 message: 'Error al borrar usuario',
                 errors: errDel
             });
-        } else if ( !usuarioBorrado ) {
+        } else if (!usuarioBorrado) {
             return res.status(400).json({
                 ok: false,
                 message: `No existe un hospital con el id ${id}`,
