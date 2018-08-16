@@ -3,6 +3,39 @@ var router = express.Router( );
 var Medico = require( '../models/medico.model' );
 var SEED = require( '../config/config' ).SEED;
 var mdAuthentication = require( '../middlewares/authentication.middleware' );
+
+// ==================================================
+// Obtener un solo medico
+// ==================================================
+router.get( '/:id', ( req, res, next ) => {
+    console.log( req.params.id );
+    var id = req.params.id;
+    Medico.findById( id )
+          .populate( 'usuario', 'nombre email img' )
+          .populate( 'hospital' )
+          .exec( ( errGet, medico ) => {
+              console.log();
+              if ( errGet ) {
+                    return res.status( 500 ).json({
+                        ok: false,
+                        message: 'Error al buscar medico',
+                        errors: errUpd
+                    });
+                } else if ( !medico ) {
+                    return res.status( 400 ).json({
+                        ok: false,
+                        message: `El medico con id ${id} no existe`,
+                        medico: medico
+                    })
+                }
+
+                return res.status( 200 ).json({
+                        ok: true,
+                        medico: medico
+                    })
+          });
+    
+})
 // ==================================================
 // Obtener medicos
 // ==================================================

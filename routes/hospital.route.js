@@ -38,6 +38,35 @@ router.get( '/', ( req, res, next ) => {
         });
 });
 // ==================================================
+// Obtener Hospital por Id
+// ==================================================
+router.get( '/:id', ( req, res, next ) => {
+    var id = req.params.id;
+
+    Hospital.findById( id )
+        .populate( 'usuario', 'nombre img email' )
+        .exec( ( err, hospital ) => {
+            if ( err ) {
+                return res.status( 500 ).json({
+                    ok: false,
+                    message: 'Error al buscar hospital',
+                    errors: err
+                });
+            }
+            if ( !hospital ) {
+                return res.status( 400 ).json({
+                    ok: false,
+                    message: 'El hospital con el id ' + id + ' no existe',
+                    errors: { message: 'No existe un hospital con ese id' }
+                });
+            }
+            res.status(200).json({
+                ok: true,
+                hospital: hospital
+            });
+        });
+})
+// ==================================================
 // Guardar hospitales
 // ==================================================
 router.post( '/', mdAuthentication.verificaToken, ( req, res, next ) => {

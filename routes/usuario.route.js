@@ -12,7 +12,7 @@ router.get('/', (req, res, next) => {
     console.log('usuarios route');
     var desde = Number(req.query.desde || 0);
     Usuario
-        .find({}, 'nombre email img role')
+        .find({}, 'nombre email img role google')
         .skip(desde)
         .limit(5)
         .exec((err0, usuarios) => {
@@ -45,8 +45,8 @@ router.get('/', (req, res, next) => {
 // ==================================================
 // Actualizar usuario
 // ==================================================
-router.put('/:id', mdAuthentication.verificaToken, (req, res, next) => {
-    console.log();
+router.patch('/:id', mdAuthentication.verificaToken, (req, res, next) => {
+    console.log(req.body);
     var id = req.params.id;
     var body = req.body;
     Usuario.findById(id, (errUpd, usuario) => {
@@ -65,7 +65,7 @@ router.put('/:id', mdAuthentication.verificaToken, (req, res, next) => {
         } else {
             usuario.nombre = body.nombre;
             usuario.email = body.email;
-            usuario.role = body.role;
+            usuario.role = body.role || usuario.role;
             usuario.save((errSave, usuarioGuardado) => {
                 if (errSave) {
                     return res.status(400).json({
@@ -89,7 +89,7 @@ router.put('/:id', mdAuthentication.verificaToken, (req, res, next) => {
 // ==================================================
 // Crear un nuevo usuario
 // ==================================================
-router.post('/', mdAuthentication.verificaToken, (req, res, next) => {
+router.post('/', (req, res, next) => {
     console.log();
     var body = req.body;
 
